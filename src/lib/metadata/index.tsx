@@ -16,8 +16,9 @@ const generateMetadata = (metadata?: Partial<Metadata>, options?: GenerateMetada
     ...metadata,
     title,
     description,
-    keywords: metadata?.keywords || app.keywords,
+    keywords: metadata?.keywords ?? app.keywords,
     applicationName: app.name,
+    metadataBase: metadata?.metadataBase ?? new URL('http://localhost:3000'),
     openGraph: {
       title,
       description,
