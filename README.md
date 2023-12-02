@@ -14,7 +14,7 @@ This is a template for creating Next JS (app directory) app with React Query for
 For use this template to create Next JS App you can following commands:
 
 ```bash
-npx create-next-app -e https://github.com/samudrajovanka/nextjs-react-query-template
+yarn create next-app -e https://github.com/samudrajovanka/nextjs-react-query-template
 ```
 
 ## Scripts
