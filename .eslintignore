@@ -1,0 +1,23 @@
+.next
+next-env.d.ts
+node_modules
+yarn.lock
+package-lock.json
+public
+
+.eslintcache
+
+# JSON files
+tsconfig.json
+
+# Export
+out
+.vscode/settings.json
+.idea/*
+
+# Enviroment variables
+.env
+.env*
+
+# Changelog
+CHANGELOG.md
