@@ -1,6 +1,6 @@
 # Next JS with React Query Template
 
-This is a template for creating Next JS (app directory) app with React Query for fething data
+This is a template for creating Next JS (app directory) app with React Query for fetching data
 
 ## Technologies Used
 
