@@ -4,7 +4,7 @@ This is a template for creating Next JS (app directory) app with React Query for
 
 ## Technologies Used
 
-- [Next JS v14](https://nextjs.org/)
+- [Next JS v15](https://nextjs.org/)
 - [React Query v5](https://tanstack.com/query/v5)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [TypeScript](https://www.typescriptlang.org/)
