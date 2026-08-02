@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getUsers } from '@/repositories/user';
+import { getUsers } from '@/features/user/api';
 
 export const getUsersKey = () => ['users'];
 

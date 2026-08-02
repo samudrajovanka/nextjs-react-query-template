@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 
-import app from '@/config/app';
+import app from '@/shared/config/app';
 
-import { GenerateMetadataOptions } from './types';
+type GenerateMetadataOptions = {
+  withSuffix?: boolean;
+};
 
 const generateMetadata = (metadata?: Partial<Metadata>, options?: GenerateMetadataOptions): Metadata => {
   let title = metadata?.title ?? app.name;

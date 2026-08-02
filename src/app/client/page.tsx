@@ -1,10 +1,7 @@
-/**
- * ! Example for use react query on client component
- */
 'use client';
 
-import ReactQuery from '@/components/parts/ReactQuery';
-import { useUsers } from '@/query/user';
+import { useUsers } from '@/features/user/query';
+import ReactQuery from '@/shared/components/molecules/query/Query';
 
 const ClientPage = () => {
   const usersQuery = useUsers();
@@ -18,7 +15,7 @@ const ClientPage = () => {
         renderLoading={<p>Getting users data...</p>}
         render={(users) => (
           <>
-            {users.map(user => (
+            {users.map((user) => (
               <p key={user.email}>{user.name}</p>
             ))}
           </>

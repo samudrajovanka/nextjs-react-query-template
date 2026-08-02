@@ -6,27 +6,26 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "biome:format": "biome format --write",
+    "biome:lint": "biome lint --write",
+    "biome:check": "biome check --write",
+    "prepare:install": "lefthook install"
   },
   "dependencies": {
+    "@tanstack/react-form": "^1.33.3",
     "@tanstack/react-query": "^5.51.1",
-    "eslint-config-next": "^15.3.2",
     "next": "15.3.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.6",
     "@tanstack/react-query-devtools": "^5.12.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-import-alias": "^1.2.0",
-    "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-react": "^7.33.2",
+    "lefthook": "^2.1.10",
     "postcss": "^8",
     "tailwindcss": "^3.4.4",
     "typescript": "^5"
