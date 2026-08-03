@@ -36,14 +36,14 @@ src/
 ├── features/<name>/        # Feature modules (self-contained domains)
 │   ├── page/               # Route page templates
 │   ├── components/         # Feature-specific components
-│   ├── api/                # Data fetching (fetch, axios, etc.)
+│   ├── api/                # Data fetching (uses ApiClient)
 │   ├── query/              # React Query hooks + keys
 │   └── index.ts            # Barrel export (public API)
 └── shared/                 # Cross-cutting code
     ├── assets/             # Fonts, global CSS
     ├── components/         # Atomic design: atoms → molecules → organisms
     ├── config/             # App configuration constants
-    ├── lib/helpers/        # Utilities (fetcher, metadata, queryClient)
+    ├── lib/helpers/        # Utilities (apiClient, field, metadata, queryClient)
     ├── providers/          # App-level providers (QueryClient, Theme, etc.)
     └── types/              # Shared TypeScript types
 ```
@@ -54,6 +54,18 @@ src/
 - Feature barrel (`index.ts`) exports only the public API — no internal leaks.
 - Route pages live in `features/<name>/page/` and are imported by `app/` routes.
 - Feature components stay **flat** (no atomic nesting). Atomic design is for `shared/components/` only.
+- Feature API layer creates its own `ApiClient` instance or uses the shared default:
+
+```typescript
+// features/<name>/api/index.ts
+import ApiClient from '@/shared/lib/helpers/apiClient';
+
+const api = new ApiClient({ baseUrl: '/api' });
+
+export const getItems = async () => {
+  return await api.get<Item[]>('/items');
+};
+```
 
 ### Atomic Design (shared/components/ only)
 
@@ -62,6 +74,94 @@ shared/components/
 ├── atoms/         Button, Input, Typography, Badge — never compose others
 ├── molecules/     QueryHandling, SearchBar, FormGroup — compose atoms
 └── organisms/     Header, DataTable, Footer — compose molecules
+```
+
+## ApiClient
+
+Class-based HTTP client with pluggable auth. See `shared/lib/helpers/apiClient/`.
+
+```typescript
+import ApiClient from '@/shared/lib/helpers/apiClient';
+import ApiAuthProvider, {
+  BearerAuthStrategy
+} from '@/shared/lib/helpers/apiClient/ApiAuthProvider';
+
+const authProvider = new ApiAuthProvider({
+  bearer: new BearerAuthStrategy(() => getAccessToken())
+});
+
+const api = new ApiClient({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  authProvider,
+  defaultAuthType: 'bearer'
+});
+
+await api.get<User[]>('/users', { params: { page: 1 } });
+await api.post<User>('/users', { name: 'Jovan' });
+await api.put<User>('/users/1', { name: 'Updated' });
+await api.patch<User>('/users/1', { name: 'Partial' });
+await api.delete('/users/1');
+```
+
+- `get/post/put/patch/delete` accept `Omit<RequestOptions, 'method' | 'body'>` for `params`, `authType`, `headers`.
+- Auth strategies: `bearer`, `basic`, `apiKey`. Per-request override via `authType` option.
+- Default instance: `apiClient`. Feature-specific instances in `features/<name>/api/`.
+
+## QueryHandling Component
+
+Declarative wrapper for `useQuery` results (`shared/components/molecules/query/`). Renders loading, error, empty, not-found, forbidden, and success states:
+
+```tsx
+import { QueryHandling } from '@/shared/components/molecules/query';
+
+<QueryHandling
+  queryResult={usersQuery}
+  renderLoading={<Spinner />}
+  renderError={<ErrorAlert />}
+  renderEmpty={<EmptyState />}
+  renderNotFound={<NotFound />}
+  render={({ data: users }) => <UserList users={users} />}
+/>
+```
+
+**Props:**
+| Prop | Type | Default |
+|---|---|---|
+| `queryResult` | `UseQueryResult<T>` | required |
+| `render` | `(data: T) => ReactNode` | required |
+| `renderLoading` | `ReactNode` | `<p>Loading...</p>` |
+| `renderError` | `ReactNode` | `<p>error message</p>` |
+| `renderEmpty` | `ReactNode` | — |
+| `renderNotFound` | `ReactNode` | `<p>Data not found</p>` |
+| `renderForbidden` | `ReactNode` | `<p>Access forbidden</p>` |
+| `bypassForbidden` | `boolean` | `true` |
+| `checkEmpty` | `(data: T) => boolean` | — |
+
+**When to use:** Single query with standard UI states. Quick to wire up, consistent error handling.
+
+**When NOT to use:** Multiple queries in one view. QueryHandling wraps **one** query. Nesting creates separate loading states per query. For 2+ queries, handle manually:
+
+```tsx
+// ❌ Separate loading states for each query
+<QueryHandling queryResult={usersQuery} render={...}>
+  <QueryHandling queryResult={postsQuery} render={...} />
+</QueryHandling>
+
+// ✅ Single loading state for all queries
+const Page = () => {
+  const usersQuery = useUsers();
+  const postsQuery = usePosts();
+
+  if (usersQuery.isLoading || postsQuery.isLoading) return <Loading />;
+  if (usersQuery.isError || postsQuery.isError) return <ErrorAlert />;
+
+  return (
+    <>
+      <UserList users={usersQuery.data!.data} />
+      <PostList posts={postsQuery.data!.data} />
+    </>
+  );
+};
 ```
 
 ## Data Flow
@@ -73,7 +173,7 @@ Server Component → prefetchQuery → HydrationBoundary → Client Component �
 - Server components prefetch via `getQueryClient().prefetchQuery()`.
 - `HydrationBoundary` serializes cache from server to client.
 - Client components call `useQuery()` — receives cached data, no duplicate requests.
-- API layer (`features/<name>/api/`) handles raw fetch — never import `@tanstack/react-query` here.
+- API layer (`features/<name>/api/`) uses `ApiClient` — never import `@tanstack/react-query` here.
 
 ## Imports
 
@@ -118,7 +218,7 @@ mkdir -p src/features/<name>/{page,components,api,query}
 # 2. Create barrel export
 # src/features/<name>/index.ts
 
-# 3. Add API layer
+# 3. Create feature ApiClient instance
 # src/features/<name>/api/index.ts
 # src/features/<name>/api/types.ts
 

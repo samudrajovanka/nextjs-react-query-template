@@ -13,7 +13,7 @@ const ClientPage = () => {
       <QueryHandling
         queryResult={usersQuery}
         renderLoading={<p>Getting users data...</p>}
-        render={(users) => (
+        render={({ data: users }) => (
           <>
             {users.map((user) => (
               <p key={user.email}>{user.name}</p>

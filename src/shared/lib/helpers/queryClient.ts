@@ -1,7 +1,7 @@
 import { QueryClient, type QueryClientConfig } from '@tanstack/react-query';
 import { cache } from 'react';
 import type { ErrorGeneralResponse } from '@/shared/types/response';
-import { FetchError } from './fetcher';
+import { FetchError } from './apiClient';
 
 const STALE_TIME = 1000 * 60 * 5; // 5 minutes
 

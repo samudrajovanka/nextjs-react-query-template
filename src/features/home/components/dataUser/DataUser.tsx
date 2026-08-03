@@ -5,7 +5,7 @@ const DataUser = () => {
 
   return (
     <div>
-      {usersQuery.data?.map((user) => (
+      {usersQuery.data?.data.map((user) => (
         <p key={user.email}>{user.name}</p>
       ))}
     </div>

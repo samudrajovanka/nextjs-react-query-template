@@ -65,14 +65,45 @@ src/
     │   │   └── query/             # QueryHandling wrapper
     │   └── organisms/             # Complex UI sections
     ├── config/                    # App configuration
-    ├── lib/
-    │   ├── helpers/               # Utilities (fetcher, metadata, queryClient)
-    │   └── metadata/              # SEO metadata generator
+    ├── lib/helpers/
+    │   ├── apiClient/             # HTTP client with auth strategies
+    │   ├── field.ts               # React Form utilities
+    │   ├── metadata.tsx            # SEO metadata generator
+    │   └── queryClient.ts         # React Query configuration
     ├── providers/                 # App-level providers
     └── types/                     # Shared TypeScript types
 ```
 
 ## Architecture
+
+### ApiClient
+
+Class-based HTTP client with pluggable auth strategies:
+
+```typescript
+import ApiClient from '@/shared/lib/helpers/apiClient';
+import ApiAuthProvider, {
+  BearerAuthStrategy,
+  BasicAuthStrategy,
+  ApiKeyAuthStrategy
+} from '@/shared/lib/helpers/apiClient/ApiAuthProvider';
+
+const authProvider = new ApiAuthProvider({
+  bearer: new BearerAuthStrategy(() => getAccessToken())
+});
+
+const api = new ApiClient({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  authProvider,
+  defaultAuthType: 'bearer'
+});
+
+// Per-request auth override
+await api.get('/users', { authType: 'none' });
+await api.post('/users', { name: 'Jovan' }, { authType: 'bearer' });
+```
+
+Default instance exported as `apiClient`. Feature-specific instances in `features/<name>/api/`.
 
 ### Feature-Driven
 
@@ -102,6 +133,54 @@ Server components prefetch data via `prefetchQuery`. The `HydrationBoundary` ser
 - **organisms/** — Complex sections (Headers, DataTables)
 
 Feature components stay flat — no atomic nesting needed.
+
+### QueryHandling Component
+
+Declarative wrapper for `useQuery` results. Handles loading, error, empty, and success states in a single component:
+
+```tsx
+import { useUsers } from '@/features/user/query';
+import { QueryHandling } from '@/shared/components/molecules/query';
+
+const UsersPage = () => {
+  const usersQuery = useUsers();
+
+  return (
+    <QueryHandling
+      queryResult={usersQuery}
+      renderLoading={<p>Loading users...</p>}
+      renderEmpty={<p>No users found.</p>}
+      render={({ data: users }) => (
+        <ul>
+          {users.map((user) => (
+            <li key={user.email}>{user.name}</li>
+          ))}
+        </ul>
+      )}
+    />
+  );
+};
+```
+
+**Props:** `queryResult` (required), `render` (required), `renderLoading`, `renderError`, `renderEmpty`, `renderNotFound`, `renderForbidden`, `bypassForbidden`, `checkEmpty`.
+
+**When NOT to use:** Combining 2+ queries into a single loading screen. QueryHandling wraps **one** query. For multiple queries, handle states manually:
+
+```tsx
+// DON'T nest QueryHandling — renders loading two separate times
+<QueryHandling queryResult={usersQuery} render={...}>
+  <QueryHandling queryResult={postsQuery} render={...} />
+</QueryHandling>
+
+// DO: manual composition
+if (usersQuery.isLoading || postsQuery.isLoading) return <Loading />;
+return (
+  <>
+    {usersQuery.data && <UserList users={usersQuery.data.data} />}
+    {postsQuery.data && <PostList posts={postsQuery.data.data} />}
+  </>
+);
+```
 
 ## Git Hooks
 
