@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 
-import { queryClientConfig } from '@/shared/lib/queryClient';
+import { queryClientConfig } from '@/shared/lib/helpers/queryClient';
 
 const Providers = ({ children }: React.PropsWithChildren) => {
   const [queryClient] = useState(() => new QueryClient(queryClientConfig));

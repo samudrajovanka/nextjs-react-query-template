@@ -3,8 +3,8 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { HomePage } from '@/features/home';
 import { getUsersKey } from '@/features/user';
 import { getUsers } from '@/features/user/api';
+import { getQueryClient } from '@/shared/lib/helpers/queryClient';
 import generateMetadata from '@/shared/lib/metadata';
-import { getQueryClient } from '@/shared/lib/queryClient';
 
 export const metadata = generateMetadata({ title: 'Home' }, { withSuffix: true });
 
