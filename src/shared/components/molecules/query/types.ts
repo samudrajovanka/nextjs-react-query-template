@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
 
-export type QueryProps<T> = {
+export type QueryHandlingProps<T> = {
   queryResult: UseQueryResult<T>;
   render: (data: T) => React.ReactNode;
   renderLoading?: React.ReactNode;

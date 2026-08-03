@@ -1,7 +1,7 @@
 'use client';
 
 import { useUsers } from '@/features/user/query';
-import { Query } from '@/shared/components/molecules/query';
+import { QueryHandling } from '@/shared/components/molecules/query';
 
 const ClientPage = () => {
   const usersQuery = useUsers();
@@ -10,7 +10,7 @@ const ClientPage = () => {
     <div>
       <p>Users list</p>
 
-      <Query
+      <QueryHandling
         queryResult={usersQuery}
         renderLoading={<p>Getting users data...</p>}
         render={(users) => (
