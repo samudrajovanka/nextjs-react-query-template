@@ -1,0 +1,13 @@
+/* Form field component styles
+ * Use @layer components for reusable, semantic component classes.
+ * These are NOT tree-shaken — always included in output CSS.
+ * Can be overridden by Tailwind utilities (utility layer wins).
+ */
+
+@layer components {
+  .field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}

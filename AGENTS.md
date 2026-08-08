@@ -76,6 +76,100 @@ shared/components/
 └── organisms/     Header, DataTable, Footer — compose molecules
 ```
 
+## Tailwind CSS
+
+This template uses **Tailwind CSS v4** with CSS-first configuration. There is no `tailwind.config.ts` — all theme tokens live in `globals.css`.
+
+**PostCSS (`postcss.config.mjs`):**
+
+```js
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {}
+  }
+};
+```
+
+**CSS entry (`src/shared/assets/styles/globals.css`):**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --font-inter: var(--font-inter-variable), sans-serif;
+  /* add custom tokens here */
+}
+```
+
+Add custom design tokens (colors, breakpoints, fonts) inside `@theme`. No `tailwind.config.ts` needed. Automatic content detection — no `content` array to maintain.
+
+### Custom CSS — Folder Structure
+
+Organize custom styles into subdirectories under `styles/` and import them into `globals.css`. This keeps each concern isolated and avoids a bloated `globals.css`.
+
+> **Docs:** [tailwindcss.com/docs/adding-custom-styles](https://tailwindcss.com/docs/adding-custom-styles)
+
+**`globals.css` is the single entry point** — import all files directly here. Do NOT create barrel/index CSS files per folder; that adds an extra layer of indirection without benefit.
+
+```
+shared/assets/styles/
+├── components/        # Semantic component classes (@layer components)
+│   ├── text.css
+│   ├── layout.css
+│   └── field.css
+├── utility/           # Custom utilities (@utility)
+│   └── sidebar.css
+└── globals.css        # Entry point — imports everything
+```
+
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --font-inter: var(--font-inter-variable), sans-serif;
+}
+
+/* components — @layer components, always included */
+@import "./components/text.css" layer(components);
+@import "./components/layout.css" layer(components);
+@import "./components/field.css" layer(components);
+
+/* utilities — uses @utility inside, no layer() needed */
+@import "./utility/sidebar.css";
+```
+
+**`@layer components`** — for reusable semantic classes (`.btn`, `.card`). Always included in output, can be overridden by Tailwind utilities:
+
+```css
+/* components/field.css */
+@layer components {
+  .field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+```
+
+**`@utility`** — for custom utility classes. Tree-shaken (removed if unused) and automatically support variants like `hover:`, `md:`, `dark:`:
+
+```css
+/* utility/sidebar.css */
+@utility sidebar-collapsed {
+  width: 4rem;
+  overflow: hidden;
+}
+```
+
+| | `@layer components` | `@utility` |
+|---|---|---|
+| Tree-shaken | ❌ always included | ✅ removed if unused |
+| Variants (`hover:`, `md:`) | ❌ manual | ✅ automatic |
+| Best for | Semantic component blocks | Single-purpose functional classes |
+
+**When to add a new file:** Create a new file per concern (e.g. `components/badge.css`) and add its `@import` line to `globals.css`. Never import sub-files from within another sub-file.
+
 ## shadcn/ui
 
 When adding shadcn/ui to this project, configure `components.json` so generated components land in the correct atomic-design layer under `shared/components/`.
@@ -88,6 +182,8 @@ bunx shadcn@latest init
 
 ### components.json — path configuration
 
+This project uses **Tailwind v4** (CSS-first, no config file). Set `tailwind.config` to `""` in `components.json`:
+
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema.json",
@@ -95,7 +191,7 @@ bunx shadcn@latest init
   "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
+    "config": "",
     "css": "src/shared/assets/styles/globals.css",
     "baseColor": "slate",
     "cssVariables": true

@@ -8,7 +8,7 @@ Feature-driven Next.js 15 template with React Query, Biome, and Lefthook.
 - [React 19](https://react.dev/)
 - [TanStack React Query v5](https://tanstack.com/query/v5)
 - [TanStack React Form](https://tanstack.com/form)
-- [Tailwind CSS v3](https://tailwindcss.com/)
+- [Tailwind CSS v4](https://tailwindcss.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Biome](https://biomejs.dev/) (lint + format)
 - [Lefthook](https://lefthook.dev/) (git hooks)
@@ -59,6 +59,10 @@ src/
 │       └── index.ts               # Barrel export
 └── shared/                       # Cross-cutting code
     ├── assets/                    # Fonts, global styles
+    │   └── styles/
+    │       ├── components/        # Component layer CSS (text, layout, field…)
+    │       ├── utility/           # Utility layer CSS (sidebar, helpers…)
+    │       └── globals.css        # Entry point
     ├── components/
     │   ├── atoms/                 # Smallest UI building blocks
     │   ├── molecules/             # Composed components
@@ -134,9 +138,36 @@ Server components prefetch data via `prefetchQuery`. The `HydrationBoundary` ser
 
 Feature components stay flat — no atomic nesting needed.
 
+### Custom CSS Layers
+
+Split custom styles into subdirectories under `styles/` and import each file into `globals.css`.
+
+> **Docs:** [tailwindcss.com/docs/adding-custom-styles](https://tailwindcss.com/docs/adding-custom-styles)
+
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --font-inter: var(--font-inter-variable), sans-serif;
+}
+
+/* components — @layer components, always included */
+@import "./components/text.css" layer(components);
+
+/* utilities — uses @utility inside, no layer() needed */
+@import "./utility/sidebar.css";
+```
+
+| | `@layer components` | `@utility` |
+|---|---|---|
+| Tree-shaken | ❌ always included | ✅ removed if unused |
+| Variants (`hover:`, `md:`) | ❌ manual | ✅ automatic |
+| Best for | Semantic component blocks | Single-purpose functional classes |
+
 ### shadcn/ui
 
-If you add shadcn/ui, configure `components.json` so generated components land in the right atomic layer:
+If you add shadcn/ui, configure `components.json` so generated components land in the right atomic layer. Since this project uses **Tailwind v4** (no `tailwind.config.ts`), set `tailwind.config` to `""`:
 
 ```json
 {
@@ -145,7 +176,7 @@ If you add shadcn/ui, configure `components.json` so generated components land i
   "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
+    "config": "",
     "css": "src/shared/assets/styles/globals.css",
     "baseColor": "slate",
     "cssVariables": true

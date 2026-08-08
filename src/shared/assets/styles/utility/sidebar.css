@@ -1,0 +1,14 @@
+/* Sidebar utility styles
+ * Use @utility for custom utilities that should:
+ * - Be tree-shaken (removed if unused)
+ * - Support variants like hover:, focus:, responsive breakpoints
+ */
+
+@utility sidebar-collapsed {
+  width: 4rem;
+  overflow: hidden;
+}
+
+@utility sidebar-expanded {
+  width: 16rem;
+}

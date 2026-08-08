@@ -1,9 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    @apply font-inter;
-  }
+@theme {
+  --font-inter: var(--font-inter-variable), sans-serif;
 }
+
+/* components — @layer components, always included */
+@import "./components/field.css" layer(components);
+
+/* utilities — uses @utility, tree-shaken + variant support */
+@import "./utility/sidebar.css";
