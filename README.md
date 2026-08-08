@@ -134,6 +134,39 @@ Server components prefetch data via `prefetchQuery`. The `HydrationBoundary` ser
 
 Feature components stay flat — no atomic nesting needed.
 
+### shadcn/ui
+
+If you add shadcn/ui, configure `components.json` so generated components land in the right atomic layer:
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/shared/assets/styles/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/shared/components/atoms",
+    "utils": "@/shared/lib/helpers/utils",
+    "ui": "@/shared/components/atoms",
+    "lib": "@/shared/lib",
+    "hooks": "@/shared/lib/hooks"
+  }
+}
+```
+
+shadcn primitives are atoms — always go into `shared/components/atoms/`. Anything composed from them belongs in `molecules/` or `organisms/`.
+
+```bash
+bunx shadcn@latest add button
+# → generated at src/shared/components/atoms/button.tsx
+```
+
 ### QueryHandling Component
 
 Declarative wrapper for `useQuery` results. Handles loading, error, empty, and success states in a single component:

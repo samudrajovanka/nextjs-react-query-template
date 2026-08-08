@@ -76,6 +76,58 @@ shared/components/
 └── organisms/     Header, DataTable, Footer — compose molecules
 ```
 
+## shadcn/ui
+
+When adding shadcn/ui to this project, configure `components.json` so generated components land in the correct atomic-design layer under `shared/components/`.
+
+### Installation
+
+```bash
+bunx shadcn@latest init
+```
+
+### components.json — path configuration
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/shared/assets/styles/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/shared/components/atoms",
+    "utils": "@/shared/lib/helpers/utils",
+    "ui": "@/shared/components/atoms",
+    "lib": "@/shared/lib",
+    "hooks": "@/shared/lib/hooks"
+  }
+}
+```
+
+> **Key rule:** shadcn components are atomic UI primitives — they always go into `shared/components/atoms/`. Never point the alias at `molecules/` or `organisms/`.
+
+### Adding a component
+
+```bash
+bunx shadcn@latest add button
+# → generated at src/shared/components/atoms/button.tsx
+```
+
+### Placement rules
+
+| Component type | Where it goes | Example |
+|---|---|---|
+| shadcn primitive (Button, Input, Badge…) | `shared/components/atoms/` | `atoms/button.tsx` |
+| Composed from shadcn atoms | `shared/components/molecules/` | `molecules/combobox/` |
+| Complex sections using molecules | `shared/components/organisms/` | `organisms/dataTable/` |
+| Feature-specific UI (uses shadcn internally) | `features/<name>/components/` | stays flat, no atomic nesting |
+
 ## ApiClient
 
 Class-based HTTP client with pluggable auth. See `shared/lib/helpers/apiClient/`.
